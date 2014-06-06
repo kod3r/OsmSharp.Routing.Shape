@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E6D2F58E-B070-4AF7-8B94-7862FC7A5F6B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OsmSharp.Routing.Shape.Service.Routing.Plugin</RootNamespace>
+    <AssemblyName>OsmSharp.Routing.Shape.Service.Routing.Plugin</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="OsmSharp, Version=4.1.0.689, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\OsmSharp.4.1.0.689\lib\net40\OsmSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="OsmSharp.Data.Oracle">
+      <HintPath>..\packages\OsmSharp.4.1.0.689\lib\net40\OsmSharp.Data.Oracle.dll</HintPath>
+    </Reference>
+    <Reference Include="OsmSharp.Data.PostgreSQL">
+      <HintPath>..\packages\OsmSharp.4.1.0.689\lib\net40\OsmSharp.Data.PostgreSQL.dll</HintPath>
+    </Reference>
+    <Reference Include="OsmSharp.Data.Redis">
+      <HintPath>..\packages\OsmSharp.4.1.0.689\lib\net40\OsmSharp.Data.Redis.dll</HintPath>
+    </Reference>
+    <Reference Include="OsmSharp.Data.SQLite">
+      <HintPath>..\packages\OsmSharp.4.1.0.689\lib\net40\OsmSharp.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="OsmSharp.Data.SQLServer">
+      <HintPath>..\packages\OsmSharp.4.1.0.689\lib\net40\OsmSharp.Data.SQLServer.dll</HintPath>
+    </Reference>
+    <Reference Include="OsmSharp.Osm, Version=4.1.0.689, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\OsmSharp.4.1.0.689\lib\net40\OsmSharp.Osm.dll</HintPath>
+    </Reference>
+    <Reference Include="OsmSharp.Routing, Version=4.1.0.689, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\OsmSharp.4.1.0.689\lib\net40\OsmSharp.Routing.dll</HintPath>
+    </Reference>
+    <Reference Include="OsmSharp.Service.Routing, Version=0.9.0.51, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\OsmSharp.Service.Routing.0.9.0.51\lib\net45\OsmSharp.Service.Routing.dll</HintPath>
+    </Reference>
+    <Reference Include="OsmSharp.Service.Routing.Plugin.Default, Version=0.9.0.51, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\OsmSharp.Service.Routing.0.9.0.51\lib\net45\OsmSharp.Service.Routing.Plugin.Default.dll</HintPath>
+    </Reference>
+    <Reference Include="OsmSharp.UI, Version=4.1.0.689, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\OsmSharp.4.1.0.689\lib\net40\OsmSharp.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="OsmSharp.WinForms.UI, Version=4.1.0.689, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\OsmSharp.4.1.0.689\lib\net40\OsmSharp.WinForms.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Zlib.Portable, Version=1.9.1.9000, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Zlib.Portable.1.9.2\lib\portable-net4+sl4+wp71+win8\Zlib.Portable.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\SharedAssemblyVersion.cs" />
+    <Compile Include="RouterFactory.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OsmSharp.Routing.Shape\OsmSharp.Routing.Shape.csproj">
+      <Project>{343739b7-ea86-46c7-a173-79f5afdbe76f}</Project>
+      <Name>OsmSharp.Routing.Shape</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
