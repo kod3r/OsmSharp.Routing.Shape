@@ -159,8 +159,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharedAssemblyVersion.cs">
+      <Link>Properties\SharedAssemblyVersion.cs</Link>
+    </Compile>
     <Compile Include="Extensions.cs" />
-    <Compile Include="Properties\SharedAssemblyVersion.cs" />
     <Compile Include="ShapefileGraphReader.cs" />
     <Compile Include="Readers\ShapefileLiveGraphReader.cs" />
     <Compile Include="Vehicles\Bike.cs" />

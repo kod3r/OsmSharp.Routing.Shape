@@ -91,7 +91,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\SharedAssemblyVersion.cs" />
+    <Compile Include="..\SharedAssemblyVersion.cs">
+      <Link>Properties\SharedAssemblyVersion.cs</Link>
+    </Compile>
     <Compile Include="ShapefileLiveGraphCommand.cs" />
     <Compile Include="ShapefileLiveGraphProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
