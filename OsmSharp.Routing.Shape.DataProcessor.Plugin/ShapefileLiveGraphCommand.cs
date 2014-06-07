@@ -1,11 +1,24 @@
-﻿using OsmSharpDataProcessor;
+﻿// OsmSharp - OpenStreetMap (OSM) SDK
+// Copyright (C) 2013 Abelshausen Ben
+// 
+// This file is part of OsmSharp.
+// 
+// OsmSharp is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+// 
+// OsmSharp is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
+
+using OsmSharpDataProcessor;
 using OsmSharpDataProcessor.Commands;
 using OsmSharpDataProcessor.Commands.Processors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OsmSharp.Routing.Shape.DataProcessor.Plugin
 {
@@ -96,8 +109,8 @@ namespace OsmSharp.Routing.Shape.DataProcessor.Plugin
                     routingShapeCommand.SearchPattern = "*nw.shp";
                     routingShapeCommand.DistanceFactor = 1;
                     routingShapeCommand.DistanceColumn = "METER";
-                    routingShapeCommand.NodeFromColumn = "F_JNCTID";
-                    routingShapeCommand.NodeToColumn = "T_JNCTID";
+                    routingShapeCommand.NodeFromColumn = "JTE_ID_BEG";
+                    routingShapeCommand.NodeToColumn = "JTE_ID_END";
                     
                     keyValue[0] = CommandParser.RemoveQuotes(keyValue[0]);
                     keyValue[1] = CommandParser.RemoveQuotes(keyValue[1]);

@@ -1,9 +1,25 @@
-﻿using NetTopologySuite;
+﻿// OsmSharp - OpenStreetMap (OSM) SDK
+// Copyright (C) 2013 Abelshausen Ben
+// 
+// This file is part of OsmSharp.
+// 
+// OsmSharp is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+// 
+// OsmSharp is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
+
+using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-using OsmSharp.Collections.Tags;
 using OsmSharp.Osm;
-using OsmSharp.Routing.Shape;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -174,7 +190,7 @@ namespace OsmSharp.Routing.Shape.Streams
                     long edgeId = _nwReaders[_currentReader].GetInt64(_nwHeader["ID"]);
 
                     // read nodes
-                    long fromId = _nwReaders[_currentReader].GetInt64(_nwHeader["F_JNCTID"]);
+                    long fromId = _nwReaders[_currentReader].GetInt64(_nwHeader["JTE_ID_BEG"]);
                     if (!_processedNodes.Contains(fromId))
                     { // the node has not been processed yet.
                         _processedNodes.Add(fromId);
@@ -217,7 +233,7 @@ namespace OsmSharp.Routing.Shape.Streams
                         _intermediates.Add(edgeId, intermediates);
                     }
 
-                    long toId = _nwReaders[_currentReader].GetInt64(_nwHeader["T_JNCTID"]);
+                    long toId = _nwReaders[_currentReader].GetInt64(_nwHeader["JTE_ID_END"]);
                     if (!_processedNodes.Contains(toId))
                     { // the node has not been processed yet.
                         _processedNodes.Add(toId);
@@ -258,14 +274,14 @@ namespace OsmSharp.Routing.Shape.Streams
                 // build nodes list.
                 long edgeId = _nwReaders[_currentReader].GetInt64(_nwHeader["ID"]);
                 var nodesList = new List<long>();
-                nodesList.Add(_nwReaders[_currentReader].GetInt64(_nwHeader["F_JNCTID"]));
+                nodesList.Add(_nwReaders[_currentReader].GetInt64(_nwHeader["JTE_ID_BEG"]));
                 var intermediates = new List<long>();
                 if(_intermediates.TryGetValue(edgeId, out intermediates))
                 { // add intermediate nodes.
                     nodesList.AddRange(intermediates);
                     _intermediates.Remove(edgeId);
                 }
-                nodesList.Add(_nwReaders[_currentReader].GetInt64(_nwHeader["T_JNCTID"]));
+                nodesList.Add(_nwReaders[_currentReader].GetInt64(_nwHeader["JTE_ID_END"]));
 
                 // create the way.
                 var way = new Way();
