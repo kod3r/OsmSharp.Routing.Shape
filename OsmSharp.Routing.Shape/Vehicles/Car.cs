@@ -92,16 +92,20 @@ namespace OsmSharp.Routing.Shape.Vehicles
         /// <returns></returns>
         public override KilometerPerHour MaxSpeedAllowed(TagsCollectionBase tags)
         {
-            string speed;
-            if (tags.TryGetValue(_speedKey, out speed))
-            { // speed is there.
-                int result;
-                if(int.TryParse(speed, out result))
-                { // speed is parsed.
-                    return result;
+            if (_speedKey != null && _speedKey.Length > 0)
+            {
+                string speed;
+                if (tags.TryGetValue(_speedKey, out speed))
+                { // speed is there.
+                    int result;
+                    if (int.TryParse(speed, out result))
+                    { // speed is parsed.
+                        return result;
+                    }
                 }
+                throw new Exception("No maximum speed was found.");
             }
-            throw new Exception("No maximum speed was found.");
+            return this.MaxSpeed();
         }
 
         /// <summary>
