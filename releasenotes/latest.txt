@@ -1,0 +1,4 @@
+First release:
+
+- Reads shapefiles for routing.
+- Routing parameters configurable for oneway columns and speeds/distance.
