@@ -153,7 +153,7 @@ namespace OsmSharp.Routing.Shape.Readers
                 }
             }
 
-            // read all vertices.
+            // read all edges.
             for (int readerIdx = 0; readerIdx < readers.Count; readerIdx++)
             {
                 var reader = readers[readerIdx];
@@ -224,6 +224,13 @@ namespace OsmSharp.Routing.Shape.Readers
                                 Forward = true,
                                 Tags = tagsIndex.Add(tags)
                             }, null);
+                        graph.AddArc(toVertexId, fromVertexId, new LiveEdge()
+                        {
+                            Coordinates = intermediates.ToArray(),
+                            Distance = (float)distance,
+                            Forward = true,
+                            Tags = tagsIndex.Add(tags)
+                        }, null);
                     }
 
                     // report progress.
