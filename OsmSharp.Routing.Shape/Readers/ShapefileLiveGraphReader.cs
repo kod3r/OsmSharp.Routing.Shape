@@ -184,14 +184,14 @@ namespace OsmSharp.Routing.Shape.Readers
                         nodeToVertex.TryGetValue(toId, out toVertexId))
                     { // the node has not been processed yet.
                         double distance = 0;
-                        if(this.HasDistanceColumn)
+                        if (this.HasDistanceColumn)
                         { // use the distance column to read the distance.
                             distance = reader.GetDouble(header[this.DistanceColumn]) * this.DistanceFactor;
                         }
                         else
                         { // use the coordinates to calculate the distance.
                             float latitudeFrom, latitudeTo, longitudeFrom, longitudeTo;
-                            if(graph.GetVertex(fromVertexId, out latitudeFrom, out longitudeFrom) &&
+                            if (graph.GetVertex(fromVertexId, out latitudeFrom, out longitudeFrom) &&
                                 graph.GetVertex(toVertexId, out latitudeTo, out longitudeTo))
                             { // calculate distance.
                                 distance = (new GeoCoordinate(latitudeFrom, longitudeFrom)).DistanceReal(
@@ -225,12 +225,12 @@ namespace OsmSharp.Routing.Shape.Readers
                                 Tags = tagsIndex.Add(tags)
                             }, null);
                         graph.AddArc(toVertexId, fromVertexId, new LiveEdge()
-                        {
-                            Coordinates = intermediates.ToArray(),
-                            Distance = (float)distance,
-                            Forward = true,
-                            Tags = tagsIndex.Add(tags)
-                        }, null);
+                            {
+                                Coordinates = intermediates.ToArray(),
+                                Distance = (float)distance,
+                                Forward = false,
+                                Tags = tagsIndex.Add(tags)
+                            }, null);
                     }
 
                     // report progress.
