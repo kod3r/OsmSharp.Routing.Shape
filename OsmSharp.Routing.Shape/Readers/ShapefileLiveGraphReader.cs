@@ -200,7 +200,7 @@ namespace OsmSharp.Routing.Shape.Readers
                         }
 
                         // add intermediates.
-                        var intermediates = new List<GeoCoordinateSimple>();
+                        var intermediates = new List<GeoCoordinateSimple>(lineString.Coordinates.Length);
                         for (int idx = 1; idx < lineString.Coordinates.Length - 1; idx++)
                         {
                             intermediates.Add(new GeoCoordinateSimple()
@@ -211,10 +211,7 @@ namespace OsmSharp.Routing.Shape.Readers
                         }
 
                         // get meta-tags.
-                        var tags = reader.GetMetaTags();
-
-                        tags.RemoveAll(x => !interpreter.IsRelevant(x.Key));
-                        // TODO: augment tags?
+                        var tags = reader.GetMetaTags(x => interpreter.IsRelevant(x));
 
                         // add the edge.
                         graph.AddArc(fromVertexId, toVertexId, new LiveEdge()
