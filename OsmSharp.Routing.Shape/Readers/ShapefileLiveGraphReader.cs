@@ -75,7 +75,7 @@ namespace OsmSharp.Routing.Shape.Readers
 
             // create target data structures.
             var nodeToVertex = new Dictionary<long, uint>();
-            var tagsIndex = new TagsTableCollectionIndex();
+            var tagsIndex = new TagsTableCollectionIndex(false);
             var graph = new DynamicGraphRouterDataSource<LiveEdge>(tagsIndex);
 
             // create all readers.
@@ -219,14 +219,14 @@ namespace OsmSharp.Routing.Shape.Readers
                                 Coordinates = intermediates.ToArray(),
                                 Distance = (float)distance,
                                 Forward = true,
-                                Tags = tagsIndex.Add(tags)
+                                Tags = tagsIndex.AddObject(tags)
                             }, null);
                         graph.AddArc(toVertexId, fromVertexId, new LiveEdge()
                             {
                                 Coordinates = intermediates.ToArray(),
                                 Distance = (float)distance,
                                 Forward = false,
-                                Tags = tagsIndex.Add(tags)
+                                Tags = tagsIndex.AddObject(tags)
                             }, null);
                     }
 
