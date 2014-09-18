@@ -25,7 +25,7 @@ namespace OsmSharp.Routing.Shape
     /// A reader to read a shapefile network directly into a router data source.
     /// </summary>
     public abstract class ShapefileGraphReader<TEdgeData>
-        where TEdgeData : IDynamicGraphEdgeData
+        where TEdgeData : IGraphEdgeData
     {
         /// <summary>
         /// Holds the node from column.
