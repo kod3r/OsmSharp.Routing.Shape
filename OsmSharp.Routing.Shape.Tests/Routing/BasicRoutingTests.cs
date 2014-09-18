@@ -49,12 +49,12 @@ namespace OsmSharp.Routing.Shape.Tests.Routing
 
             // check route.
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Entries);
-            Assert.AreEqual(2, route.Entries.Length);
-            Assert.AreEqual(route.Entries[0].Latitude, coord1.Latitude, epsilon);
-            Assert.AreEqual(route.Entries[0].Longitude, coord1.Longitude, epsilon);
-            Assert.AreEqual(route.Entries[1].Latitude, coord2.Latitude, epsilon);
-            Assert.AreEqual(route.Entries[1].Longitude, coord2.Longitude, epsilon);
+            Assert.IsNotNull(route.Segments);
+            Assert.AreEqual(2, route.Segments.Length);
+            Assert.AreEqual(route.Segments[0].Latitude, coord1.Latitude, epsilon);
+            Assert.AreEqual(route.Segments[0].Longitude, coord1.Longitude, epsilon);
+            Assert.AreEqual(route.Segments[1].Latitude, coord2.Latitude, epsilon);
+            Assert.AreEqual(route.Segments[1].Longitude, coord2.Longitude, epsilon);
 
             // do route calculation.
             route = this.DoCalculation(coord1, coord2, new TagsCollection(
@@ -63,12 +63,12 @@ namespace OsmSharp.Routing.Shape.Tests.Routing
 
             // check route.
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Entries);
-            Assert.AreEqual(2, route.Entries.Length);
-            Assert.AreEqual(route.Entries[0].Latitude, coord1.Latitude, epsilon);
-            Assert.AreEqual(route.Entries[0].Longitude, coord1.Longitude, epsilon);
-            Assert.AreEqual(route.Entries[1].Latitude, coord2.Latitude, epsilon);
-            Assert.AreEqual(route.Entries[1].Longitude, coord2.Longitude, epsilon);
+            Assert.IsNotNull(route.Segments);
+            Assert.AreEqual(2, route.Segments.Length);
+            Assert.AreEqual(route.Segments[0].Latitude, coord1.Latitude, epsilon);
+            Assert.AreEqual(route.Segments[0].Longitude, coord1.Longitude, epsilon);
+            Assert.AreEqual(route.Segments[1].Latitude, coord2.Latitude, epsilon);
+            Assert.AreEqual(route.Segments[1].Longitude, coord2.Longitude, epsilon);
         }
 
         /// <summary>
@@ -96,12 +96,12 @@ namespace OsmSharp.Routing.Shape.Tests.Routing
 
             // check route.
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Entries);
-            Assert.AreEqual(2, route.Entries.Length);
-            Assert.AreEqual(route.Entries[0].Latitude, coord1.Latitude, epsilon);
-            Assert.AreEqual(route.Entries[0].Longitude, coord1.Longitude, epsilon);
-            Assert.AreEqual(route.Entries[1].Latitude, coord2.Latitude, epsilon);
-            Assert.AreEqual(route.Entries[1].Longitude, coord2.Longitude, epsilon);
+            Assert.IsNotNull(route.Segments);
+            Assert.AreEqual(2, route.Segments.Length);
+            Assert.AreEqual(route.Segments[0].Latitude, coord1.Latitude, epsilon);
+            Assert.AreEqual(route.Segments[0].Longitude, coord1.Longitude, epsilon);
+            Assert.AreEqual(route.Segments[1].Latitude, coord2.Latitude, epsilon);
+            Assert.AreEqual(route.Segments[1].Longitude, coord2.Longitude, epsilon);
 
             // do route calculation with 'ft' backward.
             route = this.DoCalculation(coord1, coord2, new TagsCollection(
@@ -129,12 +129,12 @@ namespace OsmSharp.Routing.Shape.Tests.Routing
 
             // check route.
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Entries);
-            Assert.AreEqual(2, route.Entries.Length);
-            Assert.AreEqual(route.Entries[0].Latitude, coord1.Latitude, epsilon);
-            Assert.AreEqual(route.Entries[0].Longitude, coord1.Longitude, epsilon);
-            Assert.AreEqual(route.Entries[1].Latitude, coord2.Latitude, epsilon);
-            Assert.AreEqual(route.Entries[1].Longitude, coord2.Longitude, epsilon);
+            Assert.IsNotNull(route.Segments);
+            Assert.AreEqual(2, route.Segments.Length);
+            Assert.AreEqual(route.Segments[0].Latitude, coord1.Latitude, epsilon);
+            Assert.AreEqual(route.Segments[0].Longitude, coord1.Longitude, epsilon);
+            Assert.AreEqual(route.Segments[1].Latitude, coord2.Latitude, epsilon);
+            Assert.AreEqual(route.Segments[1].Longitude, coord2.Longitude, epsilon);
 
             // do route calculation with 'n'.
             // edges with 'n' should not be added to the network! make sure of that by testing reader and preprocessor.
@@ -150,18 +150,17 @@ namespace OsmSharp.Routing.Shape.Tests.Routing
         private Route DoCalculation(GeoCoordinate coord1, GeoCoordinate coord2, TagsCollection tags, bool forward)
         {
             var tagsIndex = new OsmSharp.Collections.Tags.Index.TagsTableCollectionIndex();
-            var graph = new DynamicGraphRouterDataSource<LiveEdge>(new MemoryDynamicGraph<LiveEdge>(), tagsIndex);
+            var graph = new DynamicGraphRouterDataSource<LiveEdge>(new MemoryGraph<LiveEdge>(), tagsIndex);
 
             var vertex1 = graph.AddVertex((float)coord1.Latitude, (float)coord1.Longitude);
             var vertex2 = graph.AddVertex((float)coord2.Latitude, (float)coord2.Longitude);
             var edge1 = new LiveEdge()
             {
-                Coordinates = null,
                 Distance = (float)coord1.DistanceReal(coord2).Value,
                 Forward = forward,
                 Tags = tagsIndex.Add(tags)
             };
-            graph.AddArc(vertex1, vertex2, edge1, null);
+            graph.AddEdge(vertex1, vertex2, edge1, null);
 
             // do routing.
             var vehicle = new OsmSharp.Routing.Shape.Vehicles.Car("ONEWAY", "FT", "TF", "KPH");

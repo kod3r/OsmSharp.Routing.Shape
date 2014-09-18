@@ -19,6 +19,7 @@
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Collections.Tags.Index;
 using OsmSharp.Logging;
 using OsmSharp.Math.Geo;
@@ -214,20 +215,13 @@ namespace OsmSharp.Routing.Shape.Readers
                         var tags = reader.GetMetaTags(x => interpreter.IsRelevant(x));
 
                         // add the edge.
-                        graph.AddArc(fromVertexId, toVertexId, new LiveEdge()
+                        var intermediatesCollection = new CoordinateArrayCollection<GeoCoordinateSimple>(intermediates.ToArray());
+                        graph.AddEdge(fromVertexId, toVertexId, new LiveEdge()
                             {
-                                Coordinates = intermediates.ToArray(),
                                 Distance = (float)distance,
                                 Forward = true,
                                 Tags = tagsIndex.Add(tags)
-                            }, null);
-                        graph.AddArc(toVertexId, fromVertexId, new LiveEdge()
-                            {
-                                Coordinates = intermediates.ToArray(),
-                                Distance = (float)distance,
-                                Forward = false,
-                                Tags = tagsIndex.Add(tags)
-                            }, null);
+                            }, intermediatesCollection);
                     }
 
                     // report progress.

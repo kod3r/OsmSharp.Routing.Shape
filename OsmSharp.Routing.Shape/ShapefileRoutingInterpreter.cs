@@ -102,5 +102,15 @@ namespace OsmSharp.Routing.Shape
             }
             return true; // keep all keys.
         }
+
+        /// <summary>
+        /// Returns true if the given key is relevant.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool IsRelevantRouting(string key)
+        {
+            return this.IsRelevant(key);
+        }
     }
 }
