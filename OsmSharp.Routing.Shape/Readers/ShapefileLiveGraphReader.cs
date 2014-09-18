@@ -76,7 +76,7 @@ namespace OsmSharp.Routing.Shape.Readers
 
             // create target data structures.
             var nodeToVertex = new Dictionary<long, uint>();
-            var tagsIndex = new TagsTableCollectionIndex();
+            var tagsIndex = new TagsTableCollectionIndex(false);
             var graph = new DynamicGraphRouterDataSource<LiveEdge>(tagsIndex);
 
             // create all readers.

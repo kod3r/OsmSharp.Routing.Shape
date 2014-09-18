@@ -5,8 +5,11 @@ VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsmSharp.Routing.Shape", "OsmSharp.Routing.Shape\OsmSharp.Routing.Shape.csproj", "{343739B7-EA86-46C7-A173-79F5AFDBE76F}"
 EndProject
+<<<<<<< HEAD
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsmSharp.Routing.Shape.DataProcessor.Plugin", "OsmSharp.Routing.Shape.DataProcessor.Plugin\OsmSharp.Routing.Shape.DataProcessor.Plugin.csproj", "{396A5E3B-9A19-4F44-8DDD-774F9E0ABD89}"
 EndProject
+=======
+>>>>>>> d4160cc2968b2667df9f5b18fc43c9fabb8dc3ff
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsmSharp.Routing.Shape.Tests", "OsmSharp.Routing.Shape.Tests\OsmSharp.Routing.Shape.Tests.csproj", "{C0399BA1-CE84-4A3F-92DD-D626F835FCFE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsmSharp.Routing.Shape.Console", "OsmSharp.Routing.Shape.Console\OsmSharp.Routing.Shape.Console.csproj", "{AB96F7F0-EDDC-4F68-AC3D-7DF27B18C393}"
@@ -33,6 +36,7 @@ Global
 		{343739B7-EA86-46C7-A173-79F5AFDBE76F}.Release|x64.Build.0 = Release|x64
 		{343739B7-EA86-46C7-A173-79F5AFDBE76F}.Release|x86.ActiveCfg = Release|x86
 		{343739B7-EA86-46C7-A173-79F5AFDBE76F}.Release|x86.Build.0 = Release|x86
+<<<<<<< HEAD
 		{396A5E3B-9A19-4F44-8DDD-774F9E0ABD89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{396A5E3B-9A19-4F44-8DDD-774F9E0ABD89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{396A5E3B-9A19-4F44-8DDD-774F9E0ABD89}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -41,6 +45,8 @@ Global
 		{396A5E3B-9A19-4F44-8DDD-774F9E0ABD89}.Release|Any CPU.Build.0 = Release|Any CPU
 		{396A5E3B-9A19-4F44-8DDD-774F9E0ABD89}.Release|x64.ActiveCfg = Release|Any CPU
 		{396A5E3B-9A19-4F44-8DDD-774F9E0ABD89}.Release|x86.ActiveCfg = Release|Any CPU
+=======
+>>>>>>> d4160cc2968b2667df9f5b18fc43c9fabb8dc3ff
 		{C0399BA1-CE84-4A3F-92DD-D626F835FCFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C0399BA1-CE84-4A3F-92DD-D626F835FCFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0399BA1-CE84-4A3F-92DD-D626F835FCFE}.Debug|x64.ActiveCfg = Debug|Any CPU
