@@ -70,7 +70,7 @@ namespace OsmSharp.Routing.Shape.Vehicles
         /// Returns the maximum speed for this vehicle.
         /// </summary>
         /// <returns></returns>
-        protected override KilometerPerHour MaxSpeed()
+        public override KilometerPerHour MaxSpeed()
         {
             return 120;
         }
@@ -80,7 +80,7 @@ namespace OsmSharp.Routing.Shape.Vehicles
         /// </summary>
         /// <param name="highwayType"></param>
         /// <returns></returns>
-        protected override KilometerPerHour MaxSpeedAllowed(string highwayType)
+        public override KilometerPerHour MaxSpeedAllowed(string highwayType)
         {
             return 120;
         }
