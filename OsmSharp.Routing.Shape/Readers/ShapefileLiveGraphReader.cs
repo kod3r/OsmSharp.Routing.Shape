@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2013 Abelshausen Ben
+// Copyright (C) 2015 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -184,31 +184,39 @@ namespace OsmSharp.Routing.Shape.Readers
                     if (nodeToVertex.TryGetValue(fromId, out fromVertexId) &&
                         nodeToVertex.TryGetValue(toId, out toVertexId))
                     { // the node has not been processed yet.
-                        double distance = 0;
-                        if (this.HasDistanceColumn)
-                        { // use the distance column to read the distance.
-                            distance = reader.GetDouble(header[this.DistanceColumn]) * this.DistanceFactor;
-                        }
-                        else
-                        { // use the coordinates to calculate the distance.
-                            float latitudeFrom, latitudeTo, longitudeFrom, longitudeTo;
-                            if (graph.GetVertex(fromVertexId, out latitudeFrom, out longitudeFrom) &&
-                                graph.GetVertex(toVertexId, out latitudeTo, out longitudeTo))
-                            { // calculate distance.
-                                distance = (new GeoCoordinate(latitudeFrom, longitudeFrom)).DistanceReal(
-                                    new GeoCoordinate(latitudeTo, longitudeTo)).Value;
-                            }
-                        }
-
                         // add intermediates.
                         var intermediates = new List<GeoCoordinateSimple>(lineString.Coordinates.Length);
                         for (int idx = 1; idx < lineString.Coordinates.Length - 1; idx++)
                         {
                             intermediates.Add(new GeoCoordinateSimple()
+                            {
+                                Latitude = (float)lineString.Coordinates[idx].Y,
+                                Longitude = (float)lineString.Coordinates[idx].X
+                            });
+                        }
+
+                        // calculate the distance.
+                        double distance = 0;
+                        if (this.HasDistanceColumn)
+                        { // use the distance column to read the distance and convert to meters.
+                            distance = reader.GetDouble(header[this.DistanceColumn]) * this.DistanceFactor;
+                        }
+                        else
+                        { // use the coordinates to calculate the distance in meters.
+                            float latitudeFrom, latitudeTo, longitudeFrom, longitudeTo;
+                            if (graph.GetVertex(fromVertexId, out latitudeFrom, out longitudeFrom) &&
+                                graph.GetVertex(toVertexId, out latitudeTo, out longitudeTo))
+                            { // calculate distance.
+                                var fromLocation = new GeoCoordinate(latitudeFrom, longitudeFrom);
+                                for (int idx = 0; idx < intermediates.Count; idx++)
                                 {
-                                    Latitude = (float)lineString.Coordinates[idx].Y,
-                                    Longitude = (float)lineString.Coordinates[idx].X
-                                });
+                                    var currentLocation = new GeoCoordinate(intermediates[idx].Latitude, intermediates[idx].Longitude);
+                                    distance = distance + fromLocation.DistanceReal(currentLocation).Value;
+                                    fromLocation = currentLocation;
+                                }
+                                var toLocation = new GeoCoordinate(latitudeTo, longitudeTo);
+                                distance = distance + fromLocation.DistanceReal(toLocation).Value;
+                            }
                         }
 
                         // get meta-tags.
