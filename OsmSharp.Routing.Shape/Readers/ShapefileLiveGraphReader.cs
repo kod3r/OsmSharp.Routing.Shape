@@ -29,6 +29,8 @@ using OsmSharp.Routing.Osm.Graphs;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Collections;
+using OsmSharp.Collections.Tags;
 
 namespace OsmSharp.Routing.Shape.Readers
 {
@@ -62,188 +64,36 @@ namespace OsmSharp.Routing.Shape.Readers
         }
 
         /// <summary>
-        /// Reads a routing network into a live edge graph.
+        /// Creates a new graph.
         /// </summary>
-        /// <param name="path">The root path to the shapefile(s).</param>
-        /// <param name="searchPattern">The search string to identify the shapefile(s) to read.  ex: "*nw.shp"</param>
-        /// <param name="interpreter">The shapefile interpreter telling the reader what to import or interpret.</param>
+        /// <param name="tagsCollection"></param>
         /// <returns></returns>
-        public override DynamicGraphRouterDataSource<LiveEdge> Read(string path, string searchPattern, ShapefileRoutingInterpreter interpreter)
+        protected override DynamicGraphRouterDataSource<LiveEdge> CreateGraph(ITagsCollectionIndexReadonly tagsCollection)
         {
-            // build a list of nw-files.
-            var directoryInfo = new DirectoryInfo(path);
-            var networkFiles = directoryInfo.EnumerateFiles(searchPattern, SearchOption.AllDirectories);
+            return new DynamicGraphRouterDataSource<LiveEdge>(tagsCollection);
+        }
 
-            // create target data structures.
-            var nodeToVertex = new Dictionary<long, uint>();
-            var tagsIndex = new TagsTableCollectionIndex(false);
-            var graph = new DynamicGraphRouterDataSource<LiveEdge>(tagsIndex);
-
-            // create all readers.
-            var readers = new List<ShapefileDataReader>();
-            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory();
-            foreach(var networkFile in networkFiles)
+        /// <summary>
+        /// Adds a new edge.
+        /// </summary>
+        /// <param name="graph"></param>
+        /// <param name="tagsIndex"></param>
+        /// <param name="vertex1"></param>
+        /// <param name="vertex2"></param>
+        /// <param name="intermediates"></param>
+        /// <param name="tags"></param>
+        /// <param name="distance"></param>
+        protected override void AddEdge(DynamicGraphRouterDataSource<LiveEdge> graph, ITagsCollectionIndex tagsIndex, uint vertex1, uint vertex2,
+            List<GeoCoordinateSimple> intermediates, TagsCollectionBase tags, double distance)
+        {
+            // add the edge.
+            var intermediatesCollection = new CoordinateArrayCollection<GeoCoordinateSimple>(intermediates.ToArray());
+            graph.AddEdge(vertex1, vertex2, new LiveEdge()
             {
-                readers.Add(new ShapefileDataReader(networkFile.FullName, geometryFactory));
-            }
-            
-            // read all vertices.
-            for(int readerIdx = 0; readerIdx < readers.Count; readerIdx++)
-            {
-                var reader = readers[readerIdx];
-                var header = new Dictionary<string, int>();
-                // make sure the header is loaded.
-                if (header.Count == 0)
-                { // build header.
-                    for (int idx = 0; idx < reader.DbaseHeader.Fields.Length; idx++)
-                    {
-                        header.Add(reader.DbaseHeader.Fields[idx].Name, idx);
-                    }
-
-                    // check if all columns are in the header.
-                    if(!header.ContainsKey(this.NodeFromColumn))
-                    { // no node from column.
-                        throw new InvalidOperationException(string.Format("No column with name {0} found.", this.NodeFromColumn));
-                    }
-                    if (!header.ContainsKey(this.NodeToColumn))
-                    { // no node to column.
-                        throw new InvalidOperationException(string.Format("No column with name {0} found.", this.NodeToColumn));
-                    }
-                    if(this.HasDistanceColumn && !header.ContainsKey(this.DistanceColumn))
-                    { // no distance column found.
-                        throw new InvalidOperationException(string.Format("No column with name {0} found.", this.DistanceColumn));
-                    }
-                }
-
-                // read all vertices.
-                double latestProgress = 0;
-                int current = 0;
-                while (reader.Read())
-                {
-                    // get the geometry.
-                    var lineString = reader.Geometry as LineString;
-
-                    // read nodes
-                    long fromId = reader.GetInt64(header[this.NodeFromColumn]);
-                    if (!nodeToVertex.ContainsKey(fromId))
-                    { // the node has not been processed yet.
-                        nodeToVertex.Add(fromId,
-                            graph.AddVertex(
-                                (float)lineString.Coordinates[0].Y,
-                                (float)lineString.Coordinates[0].X));
-                    }
-
-                    long toId = reader.GetInt64(header[this.NodeToColumn]);
-                    if (!nodeToVertex.ContainsKey(toId))
-                    { // the node has not been processed yet.
-                        nodeToVertex.Add(toId,
-                            graph.AddVertex(
-                                (float)lineString.Coordinates[lineString.Coordinates.Length - 1].Y,
-                                (float)lineString.Coordinates[lineString.Coordinates.Length - 1].X));
-                    }
-
-                    // report progress.
-                    float progress = (float)System.Math.Round((((double)current / (double)reader.RecordCount) * 100));
-                    current++;
-                    if (progress != latestProgress)
-                    {
-                        OsmSharp.Logging.Log.TraceEvent("ShapefileLiveGraphReader", TraceEventType.Information,
-                            "Reading vertices from file {1}/{2}... {0}%", progress, readerIdx + 1, readers.Count);
-                        latestProgress = progress;
-                    }
-                }
-            }
-
-            // read all edges.
-            for (int readerIdx = 0; readerIdx < readers.Count; readerIdx++)
-            {
-                var reader = readers[readerIdx];
-                var header = new Dictionary<string, int>();
-                // make sure the header is loaded.
-                if (header.Count == 0)
-                { // build header.
-                    for (int idx = 0; idx < reader.DbaseHeader.Fields.Length; idx++)
-                    {
-                        header.Add(reader.DbaseHeader.Fields[idx].Name, idx);
-                    }
-                }
-
-                // reset reader and read all edges/arcs.
-                double latestProgress = 0;
-                int current = 0;
-                reader.Reset();
-                while (reader.Read())
-                {
-                    // get the geometry.
-                    var lineString = reader.Geometry as LineString;
-
-                    // read nodes
-                    long fromId = reader.GetInt64(header[this.NodeFromColumn]);
-                    long toId = reader.GetInt64(header[this.NodeToColumn]);
-                    uint fromVertexId, toVertexId;
-                    if (nodeToVertex.TryGetValue(fromId, out fromVertexId) &&
-                        nodeToVertex.TryGetValue(toId, out toVertexId))
-                    { // the node has not been processed yet.
-                        // add intermediates.
-                        var intermediates = new List<GeoCoordinateSimple>(lineString.Coordinates.Length);
-                        for (int idx = 1; idx < lineString.Coordinates.Length - 1; idx++)
-                        {
-                            intermediates.Add(new GeoCoordinateSimple()
-                            {
-                                Latitude = (float)lineString.Coordinates[idx].Y,
-                                Longitude = (float)lineString.Coordinates[idx].X
-                            });
-                        }
-
-                        // calculate the distance.
-                        double distance = 0;
-                        if (this.HasDistanceColumn)
-                        { // use the distance column to read the distance and convert to meters.
-                            distance = reader.GetDouble(header[this.DistanceColumn]) * this.DistanceFactor;
-                        }
-                        else
-                        { // use the coordinates to calculate the distance in meters.
-                            float latitudeFrom, latitudeTo, longitudeFrom, longitudeTo;
-                            if (graph.GetVertex(fromVertexId, out latitudeFrom, out longitudeFrom) &&
-                                graph.GetVertex(toVertexId, out latitudeTo, out longitudeTo))
-                            { // calculate distance.
-                                var fromLocation = new GeoCoordinate(latitudeFrom, longitudeFrom);
-                                for (int idx = 0; idx < intermediates.Count; idx++)
-                                {
-                                    var currentLocation = new GeoCoordinate(intermediates[idx].Latitude, intermediates[idx].Longitude);
-                                    distance = distance + fromLocation.DistanceReal(currentLocation).Value;
-                                    fromLocation = currentLocation;
-                                }
-                                var toLocation = new GeoCoordinate(latitudeTo, longitudeTo);
-                                distance = distance + fromLocation.DistanceReal(toLocation).Value;
-                            }
-                        }
-
-                        // get meta-tags.
-                        var tags = reader.GetMetaTags(x => interpreter.IsRelevant(x));
-
-                        // add the edge.
-                        var intermediatesCollection = new CoordinateArrayCollection<GeoCoordinateSimple>(intermediates.ToArray());
-                        graph.AddEdge(fromVertexId, toVertexId, new LiveEdge()
-                            {
-                                Distance = (float)distance,
-                                Forward = true,
-                                Tags = tagsIndex.Add(tags)
-                            }, intermediatesCollection);
-                    }
-
-                    // report progress.
-                    float progress = (float)System.Math.Round((((double)current / (double)reader.RecordCount) * 100));
-                    current++;
-                    if (progress != latestProgress)
-                    {
-                        OsmSharp.Logging.Log.TraceEvent("ShapefileLiveGraphReader", TraceEventType.Information,
-                            "Reading edges {1}/{2}... {0}%", progress, readerIdx + 1, readers.Count);
-                        latestProgress = progress;
-                    }
-                }
-            }
-            return graph;
+                Distance = (float)distance,
+                Forward = true,
+                Tags = tagsIndex.Add(tags)
+            }, intermediatesCollection);
         }
     }
 }
