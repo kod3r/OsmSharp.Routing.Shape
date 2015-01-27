@@ -92,7 +92,7 @@ namespace OsmSharp.Routing.Shape.Readers
             {
                 Distance = (float)distance,
                 Forward = true,
-                Tags = tagsIndex.Add(tags)
+                Tags = tagsIndex.AddObject(tags)
             }, intermediatesCollection);
         }
     }
