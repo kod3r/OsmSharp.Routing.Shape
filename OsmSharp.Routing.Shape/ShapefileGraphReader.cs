@@ -172,7 +172,7 @@ namespace OsmSharp.Routing.Shape
             // create target data structures.
             var nodeToVertex = new Dictionary<long, uint>();
             var tagsIndex = new TagsTableCollectionIndex(false);
-            var graph = this.CreateGraph(tagsIndex); // new DynamicGraphRouterDataSource<LiveEdge>(tagsIndex);
+            var graph = this.CreateGraph(tagsIndex);
 
             // create all readers.
             var readers = new List<ShapefileDataReader>();
