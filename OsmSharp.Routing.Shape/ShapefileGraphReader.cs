@@ -19,14 +19,12 @@
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Collections.Tags;
 using OsmSharp.Collections.Tags.Index;
 using OsmSharp.Logging;
 using OsmSharp.Math.Geo;
 using OsmSharp.Math.Geo.Simple;
 using OsmSharp.Routing.Graph;
-using OsmSharp.Routing.Shape.Vehicles;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -60,6 +58,12 @@ namespace OsmSharp.Routing.Shape
         private float _distanceFactor;
 
         /// <summary>
+        /// When true uses the shapefile shapes as shapepoints.
+        /// When false inserts a vertex for every coordinate along the shapefile shape.
+        /// </summary>
+        private bool _useShapes = true;
+
+        /// <summary>
         /// Creates a new shapefile graph reader.
         /// </summary>
         /// <param name="nodeFromColumn">The column containing the from node. ex: "JTE_ID_BEG"</param>
@@ -71,6 +75,23 @@ namespace OsmSharp.Routing.Shape
 
             _distanceColumn = string.Empty;
             _distanceFactor = 0;
+            _useShapes = true;
+        }
+
+        /// <summary>
+        /// Creates a new shapefile graph reader.
+        /// </summary>
+        /// <param name="nodeFromColumn">The column containing the from node. ex: "JTE_ID_BEG"</param>
+        /// <param name="nodeToColumn">The column containing the to node. ex: "JTE_ID_END"</param>
+        /// <param name="useShapes">When false inserts vertices along shapes of the shapefiles.</param>
+        protected ShapefileGraphReader(string nodeFromColumn, string nodeToColumn, bool useShapes)
+        {
+            _nodeFromColumn = nodeFromColumn;
+            _nodeToColumn = nodeToColumn;
+
+            _distanceColumn = string.Empty;
+            _distanceFactor = 0;
+            _useShapes = useShapes;
         }
 
         /// <summary>
@@ -87,6 +108,25 @@ namespace OsmSharp.Routing.Shape
 
             _distanceColumn = distanceColumn;
             _distanceFactor = distanceFactor;
+            _useShapes = true;
+        }
+
+        /// <summary>
+        /// Creates a new shapefile graph reader.
+        /// </summary>
+        /// <param name="nodeFromColumn">The column containing the from node. ex: "JTE_ID_BEG"</param>
+        /// <param name="nodeToColumn">The column containing the to node. ex: "JTE_ID_END"</param>
+        /// <param name="distanceColumn">The column containg the distance. ex: "METERS"</param>
+        /// <param name="distanceFactor">The column containing the factor to convert the distance to meter (1=meter, 0.001=km).</param>
+        /// <param name="useShapes">When false inserts vertices along shapes of the shapefiles.</param>
+        protected ShapefileGraphReader(string nodeFromColumn, string nodeToColumn, string distanceColumn, float distanceFactor, bool useShapes)
+        {
+            _nodeFromColumn = nodeFromColumn;
+            _nodeToColumn = nodeToColumn;
+
+            _distanceColumn = distanceColumn;
+            _distanceFactor = distanceFactor;
+            _useShapes = useShapes;
         }
 
         /// <summary>
@@ -279,46 +319,76 @@ namespace OsmSharp.Routing.Shape
                     if (nodeToVertex.TryGetValue(fromId, out fromVertexId) &&
                         nodeToVertex.TryGetValue(toId, out toVertexId))
                     { // the node has not been processed yet.
-                        // add intermediates.
-                        var intermediates = new List<GeoCoordinateSimple>(lineString.Coordinates.Length);
-                        for (int idx = 1; idx < lineString.Coordinates.Length - 1; idx++)
-                        {
-                            intermediates.Add(new GeoCoordinateSimple()
+                        if (_useShapes)
+                        { // use the shapes as shapes in the graph.
+                            // add intermediates.
+                            var intermediates = new List<GeoCoordinateSimple>(lineString.Coordinates.Length);
+                            for (int idx = 1; idx < lineString.Coordinates.Length - 1; idx++)
                             {
-                                Latitude = (float)lineString.Coordinates[idx].Y,
-                                Longitude = (float)lineString.Coordinates[idx].X
-                            });
-                        }
+                                intermediates.Add(new GeoCoordinateSimple()
+                                {
+                                    Latitude = (float)lineString.Coordinates[idx].Y,
+                                    Longitude = (float)lineString.Coordinates[idx].X
+                                });
+                            }
 
-                        // calculate the distance.
-                        double distance = 0;
-                        if (this.HasDistanceColumn)
-                        { // use the distance column to read the distance and convert to meters.
-                            distance = reader.GetDouble(header[this.DistanceColumn]) * this.DistanceFactor;
+                            // calculate the distance.
+                            double distance = 0;
+                            if (this.HasDistanceColumn)
+                            { // use the distance column to read the distance and convert to meters.
+                                distance = reader.GetDouble(header[this.DistanceColumn]) * this.DistanceFactor;
+                            }
+                            else
+                            { // use the coordinates to calculate the distance in meters.
+                                float latitudeFrom, latitudeTo, longitudeFrom, longitudeTo;
+                                if (graph.GetVertex(fromVertexId, out latitudeFrom, out longitudeFrom) &&
+                                    graph.GetVertex(toVertexId, out latitudeTo, out longitudeTo))
+                                { // calculate distance.
+                                    var fromLocation = new GeoCoordinate(latitudeFrom, longitudeFrom);
+                                    for (int idx = 0; idx < intermediates.Count; idx++)
+                                    {
+                                        var currentLocation = new GeoCoordinate(intermediates[idx].Latitude, intermediates[idx].Longitude);
+                                        distance = distance + fromLocation.DistanceReal(currentLocation).Value;
+                                        fromLocation = currentLocation;
+                                    }
+                                    var toLocation = new GeoCoordinate(latitudeTo, longitudeTo);
+                                    distance = distance + fromLocation.DistanceReal(toLocation).Value;
+                                }
+                            }
+
+                            // get meta-tags.
+                            var tags = reader.GetMetaTags(x => interpreter.IsRelevant(x));
+
+                            // add edge.
+                            this.AddEdge(graph, tagsIndex, fromVertexId, toVertexId, intermediates, tags, distance);
                         }
                         else
-                        { // use the coordinates to calculate the distance in meters.
-                            float latitudeFrom, latitudeTo, longitudeFrom, longitudeTo;
-                            if (graph.GetVertex(fromVertexId, out latitudeFrom, out longitudeFrom) &&
-                                graph.GetVertex(toVertexId, out latitudeTo, out longitudeTo))
-                            { // calculate distance.
-                                var fromLocation = new GeoCoordinate(latitudeFrom, longitudeFrom);
-                                for (int idx = 0; idx < intermediates.Count; idx++)
-                                {
-                                    var currentLocation = new GeoCoordinate(intermediates[idx].Latitude, intermediates[idx].Longitude);
-                                    distance = distance + fromLocation.DistanceReal(currentLocation).Value;
-                                    fromLocation = currentLocation;
-                                }
-                                var toLocation = new GeoCoordinate(latitudeTo, longitudeTo);
-                                distance = distance + fromLocation.DistanceReal(toLocation).Value;
+                        { // use the shape points as vertices.
+                            // calculate distances.
+                            var distances = new double[lineString.Coordinates.Length + 1];
+                            var intermediates = new List<GeoCoordinateSimple>(lineString.Coordinates.Length);
+                            distances[0] = 0;
+                            var previous = new GeoCoordinate(lineString.Coordinates[0].Y, lineString.Coordinates[0].X);
+                            for (int idx = 1; idx < lineString.Coordinates.Length; idx++)
+                            {
+                                var next = new GeoCoordinate(lineString.Coordinates[idx].Y, lineString.Coordinates[idx].X);
+                                distances[idx] = previous.DistanceReal(next).Value;
+                                previous = next;
+                            }
+
+                            // get meta-tags.
+                            var tags = reader.GetMetaTags(x => interpreter.IsRelevant(x));
+
+                            // add vertices and edges.
+                            uint previousVertex = fromVertexId;
+                            for (int idx = 1; idx < lineString.Coordinates.Length - 1; idx++)
+                            {
+                                uint nextVertex = graph.AddVertex(
+                                    (float)lineString.Coordinates[idx].Y,
+                                    (float)lineString.Coordinates[idx].X);
+                                this.AddEdge(graph, tagsIndex, previousVertex, nextVertex, intermediates, tags, distance);
                             }
                         }
-
-                        // get meta-tags.
-                        var tags = reader.GetMetaTags(x => interpreter.IsRelevant(x));
-
-                        // add edge.
-                        this.AddEdge(graph, tagsIndex, fromVertexId, toVertexId, intermediates, tags, distance);
                     }
 
                     // report progress.
