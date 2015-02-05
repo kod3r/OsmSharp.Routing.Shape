@@ -15,7 +15,7 @@
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, nts</tags>
       <dependencies>
-        <dependency id="OsmSharp" version="4.3.0.949-beta" />
+        <dependency id="OsmSharp" version="4.3.0.952-beta" />
         <dependency id="NetTopologySuite" version="1.13.3.2" />
         <dependency id="NetTopologySuite.IO" version="1.13.3.2" />
       </dependencies>
